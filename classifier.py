@@ -1,5 +1,5 @@
 from sklearn.feature_extraction.text import TfidfVectorizer
-from stop_words import get_stop_words
+#from stop_words import get_stop_words
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import metrics
@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 
 #Set random seed zodat de trainset en testset altijd het zelfde zijn.
-np.random.seed(20051993)
+np.random.seed(19932005)
 
 #laad de labeledTrainData en splits in train en test
 df = pd.read_csv('labeledTrainData.tsv', sep='	')
@@ -18,8 +18,6 @@ testDf = df[~msk]
 
 sentiments = ['0','1']
 
-#laad Engelse stop words
-english_stop_words = get_stop_words('en')
 
 # Instantieer TF-IDF Vectorizer
 #	stop_words: de stopwords die moeten worden overgeslagen
@@ -39,11 +37,13 @@ test_vectors = vectorizer.transform(testDf['review'])
 
 labels = trainDf['sentiment'].values
 
-
+# Fit het Naive Bayes model
 clf = MultinomialNB().fit(train_vectors,labels)
 
+# Voorspel het sentiment van de test set.
 predicted = clf.predict(test_vectors)
 
+# Bereken de precisie
 accuracy = np.mean(predicted == testDf['sentiment'])
 
 print('Accuracy: ', accuracy)
@@ -51,10 +51,12 @@ print('Accuracy: ', accuracy)
 print(metrics.classification_report(testDf['sentiment'], predicted,
 									target_names=sentiments))
 
+# maak confusion matrix
 confusion_matrix = metrics.confusion_matrix(testDf['sentiment'], predicted)
 print(confusion_matrix)
 
-testReviews ={'review': ['This movie was very good, I loved it.', 
+# test met eigen reviews. 
+testReviews ={'review': ['This movie was very innovative.', 
 						'I hated this movie, would not recommend.', 
 						'You should watch this movie if you hate fun.']}
 testReviewsDf = pd.DataFrame(data=testReviews)
@@ -70,10 +72,6 @@ for prediction in predictions:
 		print('positief')
 	else:
 		print('negatief')
-
-
-
-# print(testDf)
 
 
 
